@@ -43,9 +43,9 @@ class _MyHomePageState extends State<MyHomePage> {
     mqttClient.port = port;
     mqttClient.logging(on: true);
     mqttClient.keepAlivePeriod = 20;
-    mqttClient.onConnected = _onConnected;
-    mqttClient.onDisconnected = _onDisconnected;
-    mqttClient.onSubscribed = _onSubscribed;
+    // mqttClient.onConnected = _onConnected;
+    // mqttClient.onDisconnected = _onDisconnected;
+    // mqttClient.onSubscribed = _onSubscribed;
     MqttConnectionState state;
     String topic = "temperature";
     final MqttConnectMessage connMess = MqttConnectMessage()
@@ -56,10 +56,11 @@ class _MyHomePageState extends State<MyHomePage> {
     print("----client connecting----");
     mqttClient.connectionMessage = connMess;
     try {
-      await mqttClient.connect();
+      await mqttClient.connect(username, passwd);
     } on Exception catch (e) {
       print('----EXC $e----');
       mqttClient.disconnect();
+      return;
     }
     if (mqttClient.connectionStatus.state == MqttConnectionState.connected) {
       print("----client connected----");
@@ -81,6 +82,9 @@ class _MyHomePageState extends State<MyHomePage> {
       final String pt =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
       print("----topic is ${c[0].topic} and payload is $pt----");
+      setState(() {
+        _temp = double.parse(pt);
+      });
     });
 
     print("----sleeping----");
@@ -130,8 +134,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: connect,
-        tooltip: 'Play',
-        child: Icon(Icons.play_arrow),
+        tooltip: 'Refresh',
+        child: Icon(Icons.refresh),
       ),
     );
   }

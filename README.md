@@ -11,7 +11,7 @@ Starting code and inspiration for this project can be found <a href = "https://m
 ```bash
 git clone https://github.com/BRO3886/flutter-mqtt-temp-hum.git
 
-cd flutter-mqtt
+cd flutter_mqtt
 
 flutter run -v
 ```
