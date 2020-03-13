@@ -1,10 +1,8 @@
-import 'dart:async';
-import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mqtt/thermometer_widget.dart';
-import 'package:mqtt_client/mqtt_browser_client.dart';
+
 import 'package:mqtt_client/mqtt_client.dart';
-import 'package:mqtt_client/mqtt_server_client.dart';
 
 void main() => runApp(MyApp());
 
@@ -40,8 +38,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final MqttClient mqttClient = MqttClient(broker, '');
 
   double _temp = 20;
-
-  StreamSubscription subscription;
 
   void connect() async {
     mqttClient.port = port;
