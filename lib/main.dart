@@ -1,9 +1,8 @@
-
 import 'package:flutter/material.dart';
-import 'package:flutter_mqtt/thermometer_widget.dart';
-
+import './widgets/thermometer_widget.dart';
+import 'package:weather/weather.dart';
 import 'package:mqtt_client/mqtt_client.dart';
-
+import './widgets/temp_widget.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -14,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter + IoT + NodeMCU'),
+      home: MyHomePage(title: 'TempLite'),
     );
   }
 }
@@ -38,14 +37,23 @@ class _MyHomePageState extends State<MyHomePage> {
   final MqttClient mqttClient = MqttClient(broker, '');
 
   double _temp = 20;
-
+  WeatherStation weatherStation =
+      new WeatherStation("107d44f6ecc646f3aa795b01317da48d");
+  double celsius = 20;
   void connect() async {
+    Weather weather = await weatherStation.currentWeather();
+    
+    setState(() {
+      celsius = weather.temperature.celsius;
+    });
+    // double fahrenheit = weather.temperature.celsius;
+
     mqttClient.port = port;
-    mqttClient.logging(on: true);
-    mqttClient.keepAlivePeriod = 20;
-    // mqttClient.onConnected = _onConnected;
-    // mqttClient.onDisconnected = _onDisconnected;
-    // mqttClient.onSubscribed = _onSubscribed;
+    mqttClient.logging(on: false);
+    mqttClient.keepAlivePeriod = 120;
+    mqttClient.onConnected = _onConnected;
+    mqttClient.onDisconnected = _onDisconnected;
+    mqttClient.onSubscribed = _onSubscribed;
     MqttConnectionState state;
     String topic = "temperature";
     final MqttConnectMessage connMess = MqttConnectMessage()
@@ -117,20 +125,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    connect();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: SizedBox(
-          child: ThermometerWidget(
-            borderColor: Colors.red,
-            innerColor: Colors.green,
-            indicatorColor: Colors.red,
-            temperature: _temp,
-          ),
-        ),
+      body: Column(
+        children: <Widget>[
+          CurrentTemp(celsius),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: connect,
